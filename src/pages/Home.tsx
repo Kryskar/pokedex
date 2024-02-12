@@ -1,44 +1,34 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useRef, useState } from 'react';
+import { getData, useFetchPokemon } from '../api/api';
+import Pokemon from './components/Pokemon';
 
-interface Pokemon {
-  name: string;
-  // Define other properties as needed
-}
-
-interface PokemonResponse {
-  results: Pokemon[];
-  // Define other properties as needed
-}
-
-const fetchPokemon = async (pageParam): Promise<PokemonResponse> => {
-  const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${pageParam}&limit=20`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch Pokemon data');
-  }
-  return response.json();
-};
 
 const Home: React.FC = () => {
-    const [page,setPage] = useState(0)
-  const { data, isLoading, isError} = useQuery<PokemonResponse>({
-    queryKey: ['pokemon',page],
-    queryFn: () => fetchPokemon(page),
-  });
+    const [pokemonNum,setPokemonNum] = useState(20)
+    const [selectValue, setSelectValue] = useState("name")
+    const {pokemonArr} = useFetchPokemon(pokemonNum)
+    
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching data</div>;
-  console.log(data)
+   const handleChange = (e:React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectValue(e.target.value)
+   }
+
   return (
+    <>
+    <input placeholder={`filter pokemons by ${selectValue}`}/><select onChange={(e)=>handleChange(e)}><option value="name">name</option><option value="type">type</option></select>
     <div>
     <h1>Pokemon List</h1>
-    <ul>
-      {data?.results.map(pokemon => (
-        <li key={pokemon.name}>{pokemon.name}</li>
+    
+    <div style={{display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:"10px"}}>
+      {pokemonArr.map(pokemon => (
+        <Pokemon pokemon={pokemon}/>
       ))}
-    </ul>
-    <button onClick={() => setPage(page+20)}>Next page</button>
+    </div>
+    <br/>
+    <button onClick={() => setPokemonNum(pokemonNum+20)}>Load more</button> 
+    <button disabled={pokemonNum<=20} onClick={() => setPokemonNum(pokemonNum-20)}>Hide</button> 
   </div>
+  </>
   );
 };
 
