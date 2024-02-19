@@ -1,0 +1,9 @@
+.pokemon-box {
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+    gap: 10px;
+}
+
+.btnBox{
+    margin-top: 50px;
+}
