@@ -9,10 +9,13 @@ const Pokemon = ({ pokemon }: { pokemon: RootPokemon }) => {
   return (
     <div
     onClick={handleClick}
+
       style={{
         width:"285px",
         borderRadius: "10px",
         boxShadow: "rgba(0, 0, 0, 0.15) 0px 5px 15px 0px",
+        border: isPokemonClicked ? "1px red solid" : "",
+        cursor:"pointer"
       }}
     >
       <h3>{pokemon.name.toUpperCase()}</h3>
@@ -24,10 +27,10 @@ const Pokemon = ({ pokemon }: { pokemon: RootPokemon }) => {
           {isPokemonClicked && (
             <>
               <br />
-              <strong>weight:</strong>
+              <strong>weight: </strong>
               {pokemon.weight}
               <br />
-              <strong>height:</strong>
+              <strong>height: </strong>
               {pokemon.height}
             </>
           )}

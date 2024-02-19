@@ -1,18 +1,26 @@
-import React, { useRef, useState } from "react";
-import { getData, useFetchPokemon } from "../api/api";
-import Pokemon from "./components/Pokemon";
+import React, { useState } from "react";
+import Pokemon from "../components/Pokemon";
+import { useGetMultiplePokemons } from "../../api/queries";
+import styles from "./Home.module.css"
 
 const Home: React.FC = () => {
-  const [pokemonNum, setPokemonNum] = useState(20);
+
   const [selectValue, setSelectValue] = useState("name");
   const [search, setSearch] = useState("");
-  const { pokemonArr } = useFetchPokemon(pokemonNum);
+  const {results, setPokemonNum, pokemonNum} = useGetMultiplePokemons()
+
+  if(results.pending){
+    return <p>Loading...</p>
+    }
+
+    const pokemonArr = results.data
+  
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectValue(e.target.value);
   };
 
-  const pokemonsFiltered = pokemonArr.filter((pokemon) =>
+  const pokemonsFiltered = pokemonArr?.filter((pokemon) =>
     selectValue === "name"
       ? pokemon.name.includes(search)
       : pokemon.types.some((type) => type.type.name.includes(search))
@@ -22,6 +30,8 @@ const Home: React.FC = () => {
     setSearch(e.target.value);
   };
 
+  const options = ["name","type"]
+
   return (
     <>
       <input
@@ -30,27 +40,20 @@ const Home: React.FC = () => {
         placeholder={`filter pokemons by ${selectValue}`}
       />
       <select onChange={handleSelectChange}>
-        <option value="name">name</option>
-        <option value="type">type</option>
+        {options.map(el => <option value={el}>{el}</option>)}
       </select>
       <div>
         <h1>Pokemon List</h1>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(5,1fr)",
-            gap: "10px",
-          }}
+        <div className={styles["pokemon-box"]}
         >
-          {pokemonsFiltered.map((pokemon) => (
-            <Pokemon pokemon={pokemon} />
+          {pokemonsFiltered?.map((pokemon,index) => (
+            <Pokemon key={index} pokemon={pokemon} />
           ))}
         </div>
 
         {search === "" && (
-          <>
-            <br />
+          <div className={styles.btnBox}>
             <button onClick={() => setPokemonNum(pokemonNum + 20)}>
               Load more
             </button>
@@ -60,7 +63,7 @@ const Home: React.FC = () => {
             >
               Hide
             </button>
-          </>
+          </div>
         )}
       </div>
     </>
